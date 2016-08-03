@@ -21,7 +21,6 @@ namespace SimpleCalculator
         private int numOperands;
 
         private int lastOperand;
-
         private Operators lastOp;
 
         private bool reset;
