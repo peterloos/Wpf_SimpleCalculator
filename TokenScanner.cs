@@ -8,9 +8,11 @@ namespace SimpleCalculator
 {
     public class TokenScanner
     {
+        // input and history
         private StringBuilder currentInput;
         private StringBuilder currentHistory;
 
+        // last recognized operand and operator
         private double lastOperand;
         private Operator lastOperator;
 
@@ -136,6 +138,7 @@ namespace SimpleCalculator
 
         public void Comma()
         {
+            // don't insert several commas
             if (this.currentInput.ToString().IndexOf(',') != -1)
                 return;
 
@@ -151,7 +154,7 @@ namespace SimpleCalculator
             // prevent backspace key destroying current result
             this.isBackspaceAllowed = false;
 
-            // next operator isn't equal
+            // current operator isn't equal
             this.isConsecutiveEqual = false;
 
             if (! this.replaceNextOperatorIfAny)
@@ -247,7 +250,6 @@ namespace SimpleCalculator
             this.isConsecutiveEqual = false;
 
             this.lastOperand = 0.0;
-
             this.lastOperator = Operator.NoOp;
         }
 
@@ -332,8 +334,7 @@ namespace SimpleCalculator
                 else
                 {
                     sb.Remove(0, 1);  // remove '-' sign
-
-                    commaIndex--;  // comma index includes '-' sign
+                    commaIndex--;     // comma index includes '-' sign
 
                     char[] destination = new char[commaIndex];
                     sb.CopyTo(0, destination, 0, commaIndex);
