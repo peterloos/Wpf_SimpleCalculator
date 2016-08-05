@@ -51,41 +51,72 @@ namespace SimpleCalculator
         }
 
         // public interface
+        //public void PushChar(char ch)
+        //{
+        //    this.isBackspaceAllowed = true;
+
+        //    if (this.resetInput)
+        //    {
+        //        this.resetInput = false;
+
+        //        this.currentInput.Clear();
+        //        this.currentInput.Append(ch);
+
+        //        this.replaceNextOperatorIfAny = false;
+        //        Console.WriteLine("==> {0}", this.currentInput.ToString());
+        //        return;
+        //    }
+
+        //    if (this.currentInput.Length == 1)
+        //    {
+        //        if (this.currentInput[0] == '0')
+        //        {
+        //            this.currentInput[0] = ch;
+        //            Console.WriteLine("==> {0}", this.currentInput.ToString());
+        //            return;
+        //        }
+        //        else
+        //        {
+        //            this.currentInput.Append(ch);
+        //            Console.WriteLine("==> {0}", this.currentInput.ToString());
+        //        }
+        //    }
+        //    else
+        //    {
+        //        this.currentInput.Append(ch);
+        //        Console.WriteLine("==> {0}", this.currentInput.ToString());
+        //    }
+        //}
+
         public void PushChar(char ch)
         {
             this.isBackspaceAllowed = true;
 
             if (this.resetInput)
             {
-                this.resetInput = false;
-
                 this.currentInput.Clear();
                 this.currentInput.Append(ch);
 
+                this.resetInput = false; 
                 this.replaceNextOperatorIfAny = false;
-                Console.WriteLine("==> {0}", this.currentInput.ToString());
-                return;
             }
-
-            if (this.currentInput.Length == 1)
+            else if (this.currentInput.Length == 1)
             {
                 if (this.currentInput[0] == '0')
                 {
                     this.currentInput[0] = ch;
-                    Console.WriteLine("==> {0}", this.currentInput.ToString());
-                    return;
                 }
                 else
                 {
                     this.currentInput.Append(ch);
-                    Console.WriteLine("==> {0}", this.currentInput.ToString());
                 }
             }
             else
             {
                 this.currentInput.Append(ch);
-                Console.WriteLine("==> {0}", this.currentInput.ToString());
             }
+
+            Console.WriteLine("==> {0}", this.currentInput.ToString());
         }
 
         public void Back()
@@ -113,6 +144,8 @@ namespace SimpleCalculator
             {
                 this.currentInput.Remove(this.currentInput.Length - 1, 1);
             }
+
+            Console.WriteLine("==> {0}", this.currentInput.ToString());
         }
 
         public void Negate()
@@ -138,6 +171,16 @@ namespace SimpleCalculator
 
         public void Comma()
         {
+            if (this.resetInput)
+            {
+                this.resetInput = false;
+
+                this.currentInput.Clear();
+                this.currentInput.Append('0');
+                this.currentInput.Append(',');
+                return;
+            }
+
             // don't insert several commas
             if (this.currentInput.ToString().IndexOf(',') != -1)
                 return;
@@ -159,12 +202,12 @@ namespace SimpleCalculator
 
             if (! this.replaceNextOperatorIfAny)
             {
-                // build new history
-                this.currentHistory.Append(this.currentInput);
-                this.currentHistory.Append(this.OperatorToString(op));
-
                 // convert input into numerical value
                 double operand = Double.Parse(this.currentInput.ToString());
+                
+                // build new history
+                this.currentHistory.Append(operand.ToString());
+                this.currentHistory.Append(this.OperatorToString(op));
 
                 if (this.twoOperandsExisting)
                 {

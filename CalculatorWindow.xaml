@@ -46,7 +46,7 @@
                 CommandParameter="/" Content="/" />
         <Button Grid.Row="2" Grid.Column="4" Margin="3"
                 Command="{Binding BackCommand}"
-                Content="&lt;=" />
+                Content="&#x232B;" />
 
         <Button Grid.Row="3" Grid.Column="0" Margin="3"
                 Command="{Binding DigitCommand}"
@@ -59,9 +59,9 @@
                 CommandParameter="6" Content="6" />
         <Button Grid.Row="3" Grid.Column="3" Margin="3"
                 Command="{Binding OperatorCommand}"
-                CommandParameter="*" />
+                CommandParameter="*" Content="*" />
         <Button Grid.Row="3" Grid.Column="4" Margin="3"
-                Command="{Binding ClearCommand}" />
+                Command="{Binding ClearCommand}" Content="C" />
 
         <Button Grid.Row="4" Grid.Column="0" Margin="3"
                 Command="{Binding DigitCommand}"
@@ -75,11 +75,10 @@
         <Button Grid.Row="4" Grid.Column="3" Margin="3"
                 Command="{Binding OperatorCommand}"
                 CommandParameter="-" Content="-" />
-
-        <Button Grid.Row="4" Grid.RowSpan="2" Grid.Column="4"
-                Margin="3"
-                Command="{Binding EqualCommand}"
+        <Button Grid.Row="4" Grid.Column="4" Grid.RowSpan="2" 
+                Margin="3" Command="{Binding EqualCommand}"
                 Content="=" />
+        
         <Button Grid.Row="5" Grid.Column="0" Margin="3"
                 Command="{Binding NegateCommand}"
                 Content="+-" />
