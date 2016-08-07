@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -23,9 +24,13 @@ namespace SimpleCalculator
         private bool isBackspaceAllowed;
         private bool isConsecutiveEqual;
 
+        private bool debugScanner;
+
         // c'tor
         public TokenScanner ()
         {
+            this.debugScanner = true;
+
             this.currentInput = new StringBuilder(32);
             this.currentHistory = new StringBuilder(32);
 
@@ -51,43 +56,6 @@ namespace SimpleCalculator
         }
 
         // public interface
-        //public void PushChar(char ch)
-        //{
-        //    this.isBackspaceAllowed = true;
-
-        //    if (this.resetInput)
-        //    {
-        //        this.resetInput = false;
-
-        //        this.currentInput.Clear();
-        //        this.currentInput.Append(ch);
-
-        //        this.replaceNextOperatorIfAny = false;
-        //        Console.WriteLine("==> {0}", this.currentInput.ToString());
-        //        return;
-        //    }
-
-        //    if (this.currentInput.Length == 1)
-        //    {
-        //        if (this.currentInput[0] == '0')
-        //        {
-        //            this.currentInput[0] = ch;
-        //            Console.WriteLine("==> {0}", this.currentInput.ToString());
-        //            return;
-        //        }
-        //        else
-        //        {
-        //            this.currentInput.Append(ch);
-        //            Console.WriteLine("==> {0}", this.currentInput.ToString());
-        //        }
-        //    }
-        //    else
-        //    {
-        //        this.currentInput.Append(ch);
-        //        Console.WriteLine("==> {0}", this.currentInput.ToString());
-        //    }
-        //}
-
         public void PushChar(char ch)
         {
             this.isBackspaceAllowed = true;
@@ -116,7 +84,7 @@ namespace SimpleCalculator
                 this.currentInput.Append(ch);
             }
 
-            Console.WriteLine("==> {0}", this.currentInput.ToString());
+            this.DumpInputLine();
         }
 
         public void Back()
@@ -145,7 +113,7 @@ namespace SimpleCalculator
                 this.currentInput.Remove(this.currentInput.Length - 1, 1);
             }
 
-            Console.WriteLine("==> {0}", this.currentInput.ToString());
+            this.DumpInputLine();
         }
 
         public void Negate()
@@ -167,7 +135,28 @@ namespace SimpleCalculator
             {
                 this.currentInput.Remove(0, 1);
             }
+
+            this.DumpInputLine();
         }
+
+        //public void Comma()
+        //{
+        //    if (this.resetInput)
+        //    {
+        //        this.resetInput = false;
+
+        //        this.currentInput.Clear();
+        //        this.currentInput.Append('0');
+        //        this.currentInput.Append(',');
+        //        return;
+        //    }
+
+        //    // don't insert several commas
+        //    if (this.currentInput.ToString().IndexOf(',') != -1)
+        //        return;
+
+        //    this.currentInput.Append(',');
+        //}
 
         public void Comma()
         {
@@ -178,14 +167,13 @@ namespace SimpleCalculator
                 this.currentInput.Clear();
                 this.currentInput.Append('0');
                 this.currentInput.Append(',');
-                return;
+            }
+            else if (this.currentInput.ToString().IndexOf(',') == -1)
+            {
+                this.currentInput.Append(',');  // check for several commas
             }
 
-            // don't insert several commas
-            if (this.currentInput.ToString().IndexOf(',') != -1)
-                return;
-
-            this.currentInput.Append(',');
+            this.DumpInputLine();
         }
 
         // public interface
@@ -203,7 +191,7 @@ namespace SimpleCalculator
             if (! this.replaceNextOperatorIfAny)
             {
                 // convert input into numerical value
-                double operand = Double.Parse(this.currentInput.ToString());
+                double operand = ParseInputAsDouble(this.currentInput.ToString());
                 
                 // build new history
                 this.currentHistory.Append(operand.ToString());
@@ -236,6 +224,8 @@ namespace SimpleCalculator
 
             // store current operator
             this.lastOperator = op;
+
+            this.DumpInputLine();
         }
 
         public void Equal()
@@ -246,7 +236,7 @@ namespace SimpleCalculator
                 this.currentHistory.Clear();
 
                 // calculate current calculation result
-                double operand = Double.Parse(this.currentInput.ToString());
+                double operand = ParseInputAsDouble(this.currentInput.ToString());
                 double result = this.CalculateValue(this.lastOperand, this.lastOperator, operand);
 
                 // replace input buffer with result of operation
@@ -271,13 +261,15 @@ namespace SimpleCalculator
             else
             {
                 // calculate current calculation result
-                double operand = Double.Parse(this.currentInput.ToString());
+                double operand = ParseInputAsDouble(this.currentInput.ToString());
                 double result = this.CalculateValue(operand, this.lastOperator, this.lastOperand);
 
                 // replace input buffer with result of operation
                 this.currentInput.Clear();
                 this.currentInput.Append(result.ToString());
             }
+
+            this.DumpInputLine();
         }
 
         public void Reset()
@@ -294,6 +286,8 @@ namespace SimpleCalculator
 
             this.lastOperand = 0.0;
             this.lastOperator = Operator.NoOp;
+
+            this.DumpInputLine();
         }
 
         // private helper methods
@@ -322,19 +316,44 @@ namespace SimpleCalculator
 
         private double CalculateValue(double firstOperand, Operator op, double secondOperand)
         {
-            switch (op)
+            double result = 0.0;
+
+            try
             {
-                case Operator.AddOp:
-                    return firstOperand + secondOperand;
-                case Operator.SubOp:
-                    return firstOperand - secondOperand;
-                case Operator.MulOp:
-                    return firstOperand * secondOperand;
-                case Operator.DivOp:
-                    return firstOperand / secondOperand;
+                switch (op)
+                {
+                    case Operator.AddOp:
+                        result = checked(firstOperand + secondOperand);
+                        break;
+                    case Operator.SubOp:
+                        result = checked(firstOperand - secondOperand);
+                        break;
+                    case Operator.MulOp:
+                        result = checked(firstOperand * secondOperand);
+                        break;
+                    case Operator.DivOp:
+                        if (secondOperand != 0.0)
+                            result = checked(firstOperand / secondOperand);
+                        break;
+                }
+            }
+            catch (OverflowException e)
+            {
+                Console.WriteLine("CHECKED and CAUGHT:  " + e.ToString());
             }
 
-            return 0.0;
+
+            // TEST AREA
+            String dummy = result.ToString();
+            if (dummy[0] == '\u221e')
+            {
+                Console.WriteLine("AGHHHHHHHHHHHHH:  " + dummy);
+                Console.ReadLine();
+            }
+
+
+
+            return result;
         }
 
         private String RawToDisplay(StringBuilder sb)
@@ -394,7 +413,6 @@ namespace SimpleCalculator
         private String AddDecimalSeperators(StringBuilder sb)
         {
             String result = "";
-
             while (sb.Length > 3)
             {
                 char[] destination = new char[3];
@@ -404,8 +422,37 @@ namespace SimpleCalculator
             }
 
             result = sb.ToString() + result;
-
             return result;
+        }
+
+        private double ParseInputAsDouble (String s)
+        {
+            double d = 0.0;
+            try
+            {
+                d = Double.Parse(s);
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("WRONG INPUT: {0}", s);
+                Console.ReadLine();
+            }
+            catch (System.OverflowException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("WRONG INPUT: {0}", s);
+                Console.ReadLine();
+            }
+
+            return d;
+        }
+
+        // private trace helper method
+        private void DumpInputLine()
+        {
+            String msg = String.Format("INPUT: {0}", this.currentInput.ToString());
+            Debug.WriteLineIf(this.debugScanner, msg);
         }
     }
 }

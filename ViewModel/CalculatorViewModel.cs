@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -16,11 +17,15 @@ namespace SimpleCalculator.ViewModel
         private String displayInput;
         private String displayHistory;
 
+        private bool debugViewModel;
+
         public CalculatorViewModel ()
         {
             this.scanner = new TokenScanner();
             this.displayInput = "";
             this.displayHistory = "";
+
+            this.debugViewModel = true;
         }
 
         // properties
@@ -67,7 +72,8 @@ namespace SimpleCalculator.ViewModel
                     param =>
                     {
                         char digit = ((String) param)[0];
-                        Console.WriteLine("Digit Command: {0}", digit);
+                        String msg = String.Format("Digit Command: {0}", digit);
+                        Debug.WriteLineIf(this.debugViewModel, msg);
                         this.scanner.PushChar(digit);
                         this.DisplayInput = this.scanner.CurrentInput;
                     }
@@ -82,7 +88,8 @@ namespace SimpleCalculator.ViewModel
                 return new RelayCommand (
                     param =>
                     {
-                        Console.WriteLine("Operator Command: {0}", param);
+                        String msg = String.Format("Operator Command: {0}", param);
+                        Debug.WriteLineIf(this.debugViewModel, msg);
                         Operator op = Operator.NoOp;
 
                         switch (((String)param)[0])
@@ -116,7 +123,7 @@ namespace SimpleCalculator.ViewModel
                 return new RelayCommand(
                     param =>
                     {
-                        Console.WriteLine("Clear Command");
+                        Debug.WriteLineIf(this.debugViewModel, "Clear Command");
                         this.scanner.Reset();
                         this.DisplayInput = this.scanner.CurrentInput;
                         this.DisplayHistory = this.scanner.CurrentHistory;
@@ -132,7 +139,7 @@ namespace SimpleCalculator.ViewModel
                 return new RelayCommand(
                     param =>
                     {
-                        Console.WriteLine("Back Command");
+                        Debug.WriteLineIf(this.debugViewModel, "Back Command");
                         this.scanner.Back();
                         this.DisplayInput = this.scanner.CurrentInput;
                     }
@@ -147,7 +154,7 @@ namespace SimpleCalculator.ViewModel
                 return new RelayCommand(
                     param =>
                     {
-                        Console.WriteLine("Equal Command");
+                        Debug.WriteLineIf(this.debugViewModel, "Equal Command");
                         this.scanner.Equal();
                         this.DisplayInput = this.scanner.CurrentInput;
                         this.DisplayHistory = this.scanner.CurrentHistory;
@@ -163,7 +170,7 @@ namespace SimpleCalculator.ViewModel
                 return new RelayCommand(
                     param =>
                     {
-                        Console.WriteLine("Comma Command");
+                        Debug.WriteLineIf(this.debugViewModel, "Comma Command");
                         this.scanner.Comma();
                         this.DisplayInput = this.scanner.CurrentInput;
                     }
@@ -178,7 +185,7 @@ namespace SimpleCalculator.ViewModel
                 return new RelayCommand(
                     param =>
                     {
-                        Console.WriteLine("Negate Command");
+                        Debug.WriteLineIf(this.debugViewModel, "Negate Command");
                         this.scanner.Negate();
                         this.DisplayInput = this.scanner.CurrentInput;
                     }

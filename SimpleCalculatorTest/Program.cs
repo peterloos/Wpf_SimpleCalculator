@@ -1,6 +1,7 @@
 ﻿using SimpleCalculator.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,10 @@ namespace SimpleCalculatorTest
     {
         public static void Main()
         {
+            // debug support
+            ConsoleTraceListener listener = new ConsoleTraceListener();
+            Debug.Listeners.Add(listener);
+
             // Test_01_PowerByTwo();
             Test_01_Random();
         }
@@ -105,33 +110,20 @@ namespace SimpleCalculatorTest
             vm.DigitCommand.Execute("2");
 
             // calculation with program
-            long n = 2;
+            long n1 = 2;
 
             for (int i = 0; i < 48; i++)
             {
-                Console.WriteLine("                          --> i={0}", i);
-
                 vm.EqualCommand.Execute(null);
                 String result = vm.DisplayInput;
-                Console.WriteLine("   ==> {0}", result);
-
-                n = 2 * n;
-                Console.WriteLine("   --> {0}", n);
+                Console.WriteLine("RESULT ==> {0}", result);
 
                 // verify result
                 String stripped = result.Replace(".", "");
-                long l = Int64.Parse(stripped);
+                long n2 = Int64.Parse(stripped);
 
-
-                // long l = Int64.Parse(result, NumberStyles.AllowDecimalPoint);
-                // long l = Int64.Parse(result, CultureInfo.InvariantCulture.NumberFormat);  CultureInfo.GetCultureInfo("en-US")
-                // long l = Int64.Parse(result, CultureInfo.GetCultureInfo("en-US"));
-                // double d = Double.Parse(result, CultureInfo.GetCultureInfo("en-US")); 
-                Console.WriteLine("   __> {0}", l);
-
-                if (n != l)
-                    Console.WriteLine("   ERROR !!!!");
-
+                if (n1 != n2)
+                    Console.WriteLine("ERROR: {0} differs from {1} !!!!", n1, n2);
             }
         }
     }
