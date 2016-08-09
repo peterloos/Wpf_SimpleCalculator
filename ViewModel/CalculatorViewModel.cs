@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Windows.Input;
-using WpfApplication.Common;
-
-namespace SimpleCalculator.ViewModel
+﻿namespace SimpleCalculator.ViewModel
 {
+    using System;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Windows.Input;
+    using WpfApplication.Common;
+
     public class CalculatorViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -22,6 +19,7 @@ namespace SimpleCalculator.ViewModel
         public CalculatorViewModel ()
         {
             this.scanner = new TokenScanner();
+
             this.displayInput = "";
             this.displayHistory = "";
 
@@ -31,6 +29,11 @@ namespace SimpleCalculator.ViewModel
         // properties
         public String DisplayInput
         {
+            get
+            {
+                return this.displayInput;
+            }
+
             set
             {
                 if (this.displayInput != value)
@@ -39,15 +42,15 @@ namespace SimpleCalculator.ViewModel
                     this.OnPropertyChanged("DisplayInput");
                 }
             }
-
-            get
-            {
-                return this.displayInput;
-            }
         }
 
         public String DisplayHistory
         {
+            get
+            {
+                return this.displayHistory;
+            }
+
             set
             {
                 if (this.displayHistory != value)
@@ -55,11 +58,6 @@ namespace SimpleCalculator.ViewModel
                     this.displayHistory = value;
                     this.OnPropertyChanged("DisplayHistory");
                 }
-            }
-
-            get
-            {
-                return this.displayHistory;
             }
         }
 

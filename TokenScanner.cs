@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-
-namespace SimpleCalculator
+﻿namespace SimpleCalculator
 {
+    using System;
+    using System.Diagnostics;
+    using System.Text;
+
     public class TokenScanner
     {
         // input and history
@@ -139,25 +136,6 @@ namespace SimpleCalculator
             this.DumpInputLine();
         }
 
-        //public void Comma()
-        //{
-        //    if (this.resetInput)
-        //    {
-        //        this.resetInput = false;
-
-        //        this.currentInput.Clear();
-        //        this.currentInput.Append('0');
-        //        this.currentInput.Append(',');
-        //        return;
-        //    }
-
-        //    // don't insert several commas
-        //    if (this.currentInput.ToString().IndexOf(',') != -1)
-        //        return;
-
-        //    this.currentInput.Append(',');
-        //}
-
         public void Comma()
         {
             if (this.resetInput)
@@ -165,8 +143,7 @@ namespace SimpleCalculator
                 this.resetInput = false;
 
                 this.currentInput.Clear();
-                this.currentInput.Append('0');
-                this.currentInput.Append(',');
+                this.currentInput.Append("0,");
             }
             else if (this.currentInput.ToString().IndexOf(',') == -1)
             {
@@ -176,7 +153,6 @@ namespace SimpleCalculator
             this.DumpInputLine();
         }
 
-        // public interface
         public void PushOp(Operator op)
         {
             // input needs to be reset upon next input
@@ -191,7 +167,7 @@ namespace SimpleCalculator
             if (! this.replaceNextOperatorIfAny)
             {
                 // convert input into numerical value
-                double operand = ParseInputAsDouble(this.currentInput.ToString());
+                double operand = this.ParseInputAsDouble(this.currentInput.ToString());
                 
                 // build new history
                 this.currentHistory.Append(operand.ToString());
@@ -236,7 +212,7 @@ namespace SimpleCalculator
                 this.currentHistory.Clear();
 
                 // calculate current calculation result
-                double operand = ParseInputAsDouble(this.currentInput.ToString());
+                double operand = this.ParseInputAsDouble(this.currentInput.ToString());
                 double result = this.CalculateValue(this.lastOperand, this.lastOperator, operand);
 
                 // replace input buffer with result of operation
@@ -261,7 +237,7 @@ namespace SimpleCalculator
             else
             {
                 // calculate current calculation result
-                double operand = ParseInputAsDouble(this.currentInput.ToString());
+                double operand = this.ParseInputAsDouble(this.currentInput.ToString());
                 double result = this.CalculateValue(operand, this.lastOperator, this.lastOperand);
 
                 // replace input buffer with result of operation
@@ -337,21 +313,12 @@ namespace SimpleCalculator
                         break;
                 }
             }
-            catch (OverflowException e)
+            catch (OverflowException)
             {
-                Console.WriteLine("CHECKED and CAUGHT:  " + e.ToString());
+                String msg = String.Format("OverflowException: {0} {1} {2}",
+                    firstOperand.ToString(), op.ToString(), secondOperand.ToString());
+                Debug.WriteLineIf(this.debugScanner, msg);
             }
-
-
-            // TEST AREA
-            String dummy = result.ToString();
-            if (dummy[0] == '\u221e')
-            {
-                Console.WriteLine("AGHHHHHHHHHHHHH:  " + dummy);
-                Console.ReadLine();
-            }
-
-
 
             return result;
         }
@@ -375,50 +342,50 @@ namespace SimpleCalculator
             {
                 if (negativeSignIndex == -1)
                 {
-                    result = AddDecimalSeperators(sb);
+                    result = this.AddDecimalSeparators(sb);
                 }
                 else
                 {
-                    result = '-' + AddDecimalSeperators(sb.Remove(0, 1));
+                    result = '-' + this.AddDecimalSeparators(sb.Remove(0, 1));
                 }
             }
             else
             {
                 if (negativeSignIndex == -1)
                 {
-                    char[] destination = new char[commaIndex];
-                    sb.CopyTo(0, destination, 0, commaIndex);
+                    char[] triple = new char[commaIndex];
+                    sb.CopyTo(0, triple, 0, commaIndex);
                     sb.Remove(0, commaIndex);
 
-                    String integralPart = new String(destination);
-                    result = this.AddDecimalSeperators(new StringBuilder(integralPart)) + sb.ToString();
+                    String integralPart = new String(triple);
+                    result = this.AddDecimalSeparators(new StringBuilder(integralPart)) + sb.ToString();
                 }
                 else
                 {
                     sb.Remove(0, 1);  // remove '-' sign
                     commaIndex--;     // comma index includes '-' sign
 
-                    char[] destination = new char[commaIndex];
-                    sb.CopyTo(0, destination, 0, commaIndex);
-                    sb.Remove(0, commaIndex);  
+                    char[] triple = new char[commaIndex];
+                    sb.CopyTo(0, triple, 0, commaIndex);
+                    sb.Remove(0, commaIndex);
 
-                    String integralPart = new String(destination);
-                    result = '-' + this.AddDecimalSeperators(new StringBuilder(integralPart)) + sb.ToString();
+                    String integralPart = new String(triple);
+                    result = '-' + this.AddDecimalSeparators(new StringBuilder(integralPart)) + sb.ToString();
                 }
             }
 
             return result;
         }
 
-        private String AddDecimalSeperators(StringBuilder sb)
+        private String AddDecimalSeparators(StringBuilder sb)
         {
             String result = "";
             while (sb.Length > 3)
             {
-                char[] destination = new char[3];
-                sb.CopyTo(sb.Length - 3, destination, 0, 3);
+                char[] triple = new char[3];
+                sb.CopyTo(sb.Length - 3, triple, 0, 3);
                 sb.Remove(sb.Length - 3, 3);
-                result = "." + new String(destination) + result;
+                result = "." + new String(triple) + result;
             }
 
             result = sb.ToString() + result;
@@ -432,17 +399,15 @@ namespace SimpleCalculator
             {
                 d = Double.Parse(s);
             }
-            catch (FormatException ex)
+            catch (FormatException)
             {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("WRONG INPUT: {0}", s);
-                Console.ReadLine();
+                String msg = String.Format("FormatException: {0}", s);
+                Debug.WriteLineIf(this.debugScanner, msg);
             }
-            catch (System.OverflowException ex)
+            catch (OverflowException)
             {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("WRONG INPUT: {0}", s);
-                Console.ReadLine();
+                String msg = String.Format("OverflowException: {0}", s);
+                Debug.WriteLineIf(this.debugScanner, msg);
             }
 
             return d;

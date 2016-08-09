@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-
-namespace WpfApplication.Common
+﻿namespace WpfApplication.Common
 {
+    using System;
+    using System.Windows.Input;
+
     class RelayCommand : ICommand
     {
         private Action<Object> execute;

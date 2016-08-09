@@ -17,8 +17,8 @@ namespace SimpleCalculatorTest
             ConsoleTraceListener listener = new ConsoleTraceListener();
             Debug.Listeners.Add(listener);
 
-            // Test_01_PowerByTwo();
-            Test_01_Random();
+            Test_01_PowerByTwo();
+            // Test_01_Random();
         }
 
         public static void Test_01_Random()
@@ -122,6 +122,7 @@ namespace SimpleCalculatorTest
                 String stripped = result.Replace(".", "");
                 long n2 = Int64.Parse(stripped);
 
+                n1 = 2 * n1;
                 if (n1 != n2)
                     Console.WriteLine("ERROR: {0} differs from {1} !!!!", n1, n2);
             }
